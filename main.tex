@@ -1,0 +1,1521 @@
+\documentclass[11pt]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{bm}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{graphicx}  % 图片
+\graphicspath{{figures/}}
+\geometry{a4paper, margin=2.5cm}
+
+\title{矩阵论笔记}
+\author{Cheanus}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{微积分与矩阵求导}
+
+本节总结在向量和矩阵情形下常用的求导记号与链式法则要点，采用“分子布局”的记号约定。
+
+\subsection{分子布局与分母变量}
+
+\begin{itemize}
+	\item \textbf{分子布局：} 将待求导的标量或向量函数放在“分子”，自变量放在“分母”，例如
+	\[
+		\frac{\partial f}{\partial \bm x^T},\quad
+		\frac{\partial f}{\partial X},
+	\]
+	其中 $\bm x$ 为向量，$X$ 为矩阵。
+	\item 对\textbf{向量变量}求导时，假设$f$是列向量，常见记号为 $\dfrac{\partial f}{\partial \bm x^T}$，则结果矩阵的第 $i$ 行、第 $j$ 列元素为 $\dfrac{\partial f_i}{\partial x_j}$。
+	\item 对\textbf{矩阵变量} $X$ 求导时，假设$f$是标量函数，常直接写成 $\dfrac{\partial f}{\partial X}$，不再对 $X$ 取转置，则结果矩阵的第 $i$ 行、第 $j$ 列元素为 $\dfrac{\partial f}{\partial X_{ij}}$。
+	\item 链式法则中，若分母变量为向量 $\bm x$，则所有涉及 $\bm x$ 的分母均写成 $\bm x^T$ 的形式；若分母变量为矩阵 $X$，则所有涉及 $X$ 的分母均写成 $X$ 的形式。
+\end{itemize}
+
+分子布局下，对向量 $\bm x \in \mathbb R^n$ 和矩阵 $A \in \mathbb R^{m\times n}$，有
+\[
+    \frac{\partial \bm x}{\partial \bm x^T} = I_n,
+    \frac{\partial A \bm x}{\partial \bm x^T} = A,
+    \frac{\partial \bm x^T A}{\partial \bm x^T} = A^T, \\
+    \frac{\partial \bm x^T \bm x}{\partial \bm x^T} = 2 \bm x,
+    \frac{\partial \bm x^T A \bm x}{\partial \bm x^T} = (A + A^T) \bm x.
+\]
+
+以及
+\[
+    \frac{\partial \operatorname{tr}(A X)}{\partial X} = A^T,
+    \frac{\partial \operatorname{tr}(X^T A X)}{\partial X} = A X + A^T X.
+\]
+
+\subsection{链式法则中的转置约定}
+
+设 $f = f(\bm y)$，$\bm y = \bm y(\bm x)$，其中 $f:\mathbb R^m \to \mathbb R$，$\bm y: \mathbb R^n \to \mathbb R^m$。采用分子布局并在分母写成 $\bm x^T$ 的形式时，有
+\[
+	\frac{\partial f}{\partial \bm x^T}
+	= \frac{\partial f}{\partial \bm y^T}
+		\frac{\partial \bm y}{\partial \bm x^T}.
+\]
+
+要点：一旦在左端分母中写成 $\bm x^T$，则右端所有关于中间变量的分母也都统一写成“\,$\cdot^T$” 的形式，以保证维度与布局的一致性。
+
+\section{矩阵分解}
+
+本节按矩阵类型总结常见的矩阵分解形式及其应用场景。
+
+\subsection{方阵的分解}
+
+主要针对可逆或正规矩阵。
+
+\begin{center}
+\begin{tabularx}{\textwidth}{p{2cm}p{2cm}X X X}
+	\hline
+	名称 & 数学形式 & 适用条件 & 说明 & 应用 \\
+	\hline
+	特征值分解（EVD） & $A = P D P^{-1}$ & $A \in \mathbb R^{n\times n}$，可对角化 & $D$ 为对角矩阵，对角线为特征值，$P$ 的列为特征向量 & 动力系统、PCA、谱分析 \\
+	Schur 分解 & $A = Q T Q^H$ & 任意方阵 & $Q$ 为酉（正交）矩阵，$T$ 为上三角矩阵（对角线为$A$特征值） & 理论分析、稳定性判断 \\
+	Jordan 分解 & $A = P J P^{-1}$ & 任意方阵 & $J$ 为 Jordan 标准形，用于不可对角化情形 & 不可对角化矩阵的结构分析 \\
+    LU 分解 & $A = L U$ & $A$ 可逆 & $L$ 为单位下三角矩阵，$U$ 为上三角矩阵 & 线性方程组求解、数值计算 \\
+    LDU 分解 & $A = L D U$ & $A$ 可逆 & $L$ 为单位下三角矩阵，$D$ 为对角矩阵，$U$ 为单位上三角矩阵 & 数值稳定分解 \\
+	\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{对角化}
+
+性质：
+\begin{itemize}
+    \item 若矩阵 $A$ 有 $n$ 个线性无关的特征向量，则 $A$ 可对角化。
+    \item 若矩阵 $A$ 有 $n$ 个不同的特征值，则 $A$ 可对角化。
+    \item 矩阵 $A$ 可对角化的充分必要条件是其特征多项式的每个特征值的代数重数等于几何重数。
+    \item 实对称矩阵、Hermitian 矩阵、酉矩阵和正规矩阵均可对角化。
+    \item 如果$AB=BA$，且$A$可对角化，则$A$与$B$可同时对角化。
+\end{itemize}
+
+\subsubsection{Jordan 矩阵}
+
+Jordan 矩阵 $J$ 由若干 Jordan 块 $J_k(\lambda)$ 沿对角线排列组成，每个 Jordan 块对应一个特征值 $\lambda$，形式为
+\[
+    J_k(\lambda)
+    =
+    \begin{bmatrix}
+        \lambda & 1       & 0       & \cdots & 0       \\
+        0       & \lambda & 1       & \cdots & 0       \\
+        0       & 0       & \lambda & \cdots & 0       \\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots  \\
+        0       & 0       & 0       & \cdots & \lambda
+    \end{bmatrix}_{k\times k}.
+\]
+
+性质：
+\begin{itemize}
+    \item 矩阵 $A$ 的 Jordan 标准形唯一确定，且与 $A$ 相似。
+    \item Jordan 块的大小的最大值决定了对应特征值在最小多项式中的重数。
+    \item Jordan 块的块个数等于对应特征值的几何重数，特征值个数等于代数重数。
+    \item 设$\lambda_i$的Jordan块$J_k$大小为$s$，则$(J_k-\lambda_i I)^x=0$当且仅当$x\ge s$。
+\end{itemize}
+
+\subsection{对称/正定矩阵的分解}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{p{2cm}p{2cm}X X X}
+	\hline
+	名称 & 数学形式 & 适用条件 & 说明 & 应用 \\
+	\hline
+	谱分解（对称矩阵的 EVD） & $A = Q \Lambda Q^T$ & $A$ 为实对称或正规矩阵 & $Q$ 正交，$\Lambda$ 为实对角矩阵，含特征值 & PCA、协方差矩阵分析 \\
+	Cholesky 分解 & $A = L L^T$ & $A$ 为对称正定矩阵 & $L$ 为下三角矩阵 & 数值优化、蒙特卡洛采样 \\
+	$LDL^T$ 分解 & $A = L D L^T$ & $A$ 为对称矩阵 & $L$ 为单位下三角，$D$ 为对角矩阵，避免开方 & 数值稳定分解 \\
+	\hline
+\end{tabularx}
+\end{center}
+
+\subsection{任意实矩阵的分解}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{p{2cm}p{2cm}X X X}
+	\hline
+	名称 & 数学形式 & 适用条件 & 说明 & 应用 \\
+	\hline
+	奇异值分解（SVD） & $A = U \Sigma V^T$ & 任意 $A \in \mathbb R^{m\times n}$ & $U, V$ 正交，$\Sigma$ 为对角且非负实数 & 降维、推荐系统、图像压缩、伪逆 \\
+	QR 分解 & $A = Q R$ & 任意 $A \in \mathbb R^{m\times n}$ & $Q$ 正交，$R$ 上三角，源于施密特正交化 & 最小二乘、Gram--Schmidt、数值稳定算法 \\
+	极分解 & $A = U P$ 或 $A = P V$ & 任意实矩阵 & $U$ 正交，$P$ 半正定对称，或反过来 & 类似复数极坐标的分解，用于几何变换分析 \\
+    秩分解 & $A = B C$ & 任意 $A \in \mathbb R^{m\times n}$ & $B \in \mathbb R^{m\times r}$，$C \in \mathbb R^{r\times n}$，$r=\operatorname{rank}(A)$ & 数据压缩、低秩近似 \\
+	\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{SVD与奇异值性质}
+
+公式：
+\[
+    A = U \Sigma V^T,
+\]其中 $U \in \mathbb R^{m\times m}$、$V \in \mathbb R^{n\times n}$ 为正交矩阵，$\Sigma \in \mathbb R^{m\times n}$ 为对角矩阵。
+
+\begin{itemize}
+    \item 范数关系：
+    \[
+        \lVert A \rVert_2 = \sigma_1, \quad
+        \lVert A \rVert_F = \lVert \Sigma \rVert_F = \sqrt{\sum_{i} \sigma_i^2}.
+    \]
+    \item 行列式：
+    \[
+        \lvert \det(A) \rvert = \lvert \det(\Sigma) \rvert = \prod_{i=1}^{r} \sigma_i,
+    \]
+    \item 伪逆：$A$ 的 Moore--Penrose 伪逆为
+    \[
+        A^{+} = V \Sigma^{+} U^T,
+    \]其中 $\Sigma^{+}$ 由将 $\Sigma$ 中非零奇异值取倒数后转置得到。
+    \item 对于$A A^T$的特征值分解：
+    \[
+        A A^T = U \Lambda U^T
+    \]其中$\Lambda= \Sigma \Sigma^T$，即奇异值的平方构成$AA^T$特征值。
+    \item 矩阵半正定当且仅当奇异值等于其特征值（HW9）。
+    \item 酉相似不改变矩阵奇异值。
+    \item $U$的前$r$列（$r=\operatorname{rank}(A)$）构成$A$的列空间的标准正交基，$V$的前$r$列构成$A$的行空间的标准正交基；
+        $U$的后$m-r$列构成$A$的左零空间（$A^Tx=0$）的标准正交基，$V$的后$n-r$列构成$A$的零空间的标准正交基。
+        且$Null(A) = (Row(A))^{\perp}$，$Null(A^T) = (Col(A))^{\perp}$。
+    \item $\sigma_1 = \max_{\lVert x \rVert_2 = 1} \lVert A x \rVert_2, \sigma_n = \min_{\lVert x \rVert_2 = 1} \lVert A x \rVert_2, \sigma_n \le |\lambda_i|=\frac{||Av_i||_2}{||v_i||_2} \le \sigma_1$。
+    \item $\sum_k \sigma_k^2 \ge \sum_k \lambda_k^2$（用schur分解证），$\sum_k \sigma_k \ge |\sum_k \lambda_k|$（SVD+迹性质）。（HW9）
+    \item 其他形式：
+    \[
+        A = \sum_{i=1}^r \sigma_i \bm u_i \bm v_i^T,
+        Av_i = \sigma_i \bm u_i,
+    \]
+    其中 $\bm u_i$ 和 $\bm v_i$ 分别为 $U$ 和 $V$ 的第 $i$ 列。
+    \item 最佳低秩近似：对于任意秩为 $k < r$ 的矩阵 $B$，有
+    \[
+        \lVert A - B \rVert_F \ge \lVert A - A_k \rVert_F = \sqrt{\sum_{i=k+1}^r \sigma_i^2},
+    \]其中 $A_k = \sum_{i=1}^k \sigma_i \bm u_i \bm v_i^T$。
+\end{itemize}
+
+\subsubsection{Ky-Fan 范数不等式}：
+
+设 $A, B \in \mathbb R^{m\times n}$，则对于任意 $k \le \min(m,n)$，有（HW5）
+\[
+    \sum_{i=1}^k \sigma_i(A + B) \le \sum_{i=1}^k \sigma_i(A) + \sum_{i=1}^k \sigma_i(B).
+\]
+
+\subsection{秩分解}
+
+构造方法：
+\begin{itemize}
+    \item 通过 SVD：设 $A = U \Sigma V^T$ 为 $A$ 的 SVD 分解，取 $B = U_{[:,1:r]} \Sigma_{[1:r,1:r]}^{1/2}$，$C = \Sigma_{[1:r,1:r]}^{1/2} V_{[:,1:r]}^T$。
+    \item 通过列空间和行空间基底：选取 $A$ 的列空间的一个基底组成矩阵 $B$，选取 $A$ 的行空间的一个基底组成矩阵 $C$，则 $A = B C$。
+    \item 最简形：例如先把A化成行最简形C，然后取A的前r个列B，得$A=BC$
+\end{itemize}
+
+\section{矩阵概念}
+
+\subsection{幂等、幂单与幂零矩阵}
+
+\begin{itemize}
+	\item \textbf{幂等矩阵}：若 $A^2 = A$，则称 $A$ 为幂等矩阵。幂等矩阵的特征值只可能为 $0$ 或 $1$，因此在其 Jordan 标准形中，对角线元只有 $0$ 和 $1$，$Rank(A) = \operatorname{tr}(A)$。
+	\item \textbf{幂单矩阵}：若存在正整数 $k$ 使得 $A^k = I$，则称 $A$ 为幂单矩阵。若 $k=2$，则 $A^2=I$，此时特征值只能是 $1$ 或 $-1$，在某些语境下也可称为“对合”矩阵。
+	\item \textbf{幂零矩阵}：若存在正整数 $k$ 使得 $A^k = 0$，则称 $A$ 为幂零矩阵。幂零矩阵的所有特征值均为 $0$。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 幂等矩阵 $A$ 满足 $A(A - I) = 0$，其最小多项式为 $m_A(x) = x(x - 1)$。
+    \item 幂单矩阵 $A$ 的特征值均为单位根，且满足 $x^k - 1 = 0$ 的最小多项式。
+    \item 幂零矩阵 $A$ 满足 $A^k = 0$，其最小多项式为 $m_A(x) = x^r$，其中 $r \le k$ 为 $A$ 的指数。
+\end{itemize}
+
+\subsection{Hermitian 矩阵（复对称矩阵）}
+
+复矩阵 $A \in \mathbb C^{n\times n}$ 若满足
+\[
+	A = A^{H},
+\]
+则称 $A$ 为 \textbf{Hermitian 矩阵}（厄米矩阵）。在实数情形下，Hermitian 矩阵即对称矩阵。
+
+Hermitian 矩阵具有以下重要性质：
+\begin{itemize}
+	\item 所有特征值均为实数。
+	\item 存在酉矩阵 $Q$ 使 $A = Q\Lambda Q^{H}$，其中 $\Lambda$ 为实对角矩阵（谱定理）。
+	\item 若对任意复向量 $\bm x$ 有 $\bm x^{H}A\bm x \in \mathbb R$，则 $A$ 为 Hermitian 矩阵。
+	\item 一切半正定（或正定）矩阵都是 Hermitian 矩阵：由定义 $\bm x^{H}A\bm x$ 为实数且 $\ge 0$（或 $>0$）可推出 $A = A^{H}$。
+    \item 线性组合：若 $A, B$ 为 Hermitian 矩阵，且 $c_1, c_2 \in \mathbb R$，则 $c_1 A + c_2 B$ 亦为 Hermitian 矩阵。
+    \item 不同特征值对应的特征向量正交，所有特征向量可以选取为正交的。
+\end{itemize}
+
+\subsection{反Hermitian矩阵}
+
+设 $A \in \mathbb R^{n\times n}$ 为实矩阵，若满足
+\[
+    A^H = -A,
+\]则称 $A$ 为 \textbf{反Hermitian矩阵}。
+
+性质：
+\begin{itemize}
+    \item 对任意向量 $\bm x \in \mathbb R^n$，矩阵反Hermitian当且仅当 $\bm x^H A \bm x = 0$。
+    \item 反Hermitian矩阵的对角线元素均为零。
+    \item 反Hermitian矩阵的特征值要么为零，要么成纯虚数共轭对出现。
+    \item 反Hermitian矩阵的秩为偶数。
+    \item 任意矩阵均可唯一分解为Hermitian矩阵与反Hermitian矩阵之和：$A = \frac{A + A^H}{2} + \frac{A - A^H}{2}$。
+    \item 设 $A$ 为实反对称矩阵，则 $e^{A}$ 为正交矩阵且 $\det(e^{A}) = 1$。
+\end{itemize}
+
+\subsection{正定与半正定矩阵}
+
+设 $A \in \mathbb R^{n\times n}$ 为对称矩阵，则称 $A$ 为
+\begin{itemize}
+    \item \textbf{正定矩阵}，若对任意非零向量 $\bm x \in \mathbb R^n$ 有
+    \[
+        \bm x^T A \bm x > 0.
+    \]记作 $A \succ 0$。
+    \item \textbf{半正定矩阵}，若对任意向量 $\bm x \in \mathbb R^n$ 有
+    \[
+        \bm x^T A \bm x \ge 0.
+    \]记作 $A \succeq 0$。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 特征值：$A$ 为正定矩阵的充分必要条件是其所有特征值均为正实数；$A$ 为半正定矩阵的充分必要条件是其所有特征值均为非负实数。
+    \item 主子矩阵：$A$ 为正定矩阵的充分必要条件是其所有主子矩阵的行列式均为正；$A$ 为半正定矩阵的充分必要条件是其所有主子矩阵的行列式均为非负。
+    \item 逆与和：若 $A$ 为正定矩阵，则 $A^{-1}$ 亦为正定矩阵；若 $A, B$ 均为半正定矩阵，则 $A + B$ 亦为半正定矩阵。
+    \item 平方根：若 $A$ 为半正定矩阵，则存在唯一的半正定矩阵 $B$ 使得 $B^2 = A$，记为 $B = A^{1/2} = U \Lambda^{1/2} U^T$，其中 $A=U \Lambda U^T$。
+    \item 矩阵半正定当且仅当$\lambda_i=\sigma_i$（schur分解）。
+    \item $P^H A P$ 的正定性与 $A$ 相同，若 $P$ 可逆。
+    \item 若$AB=BA$，且$A,B$为正定矩阵，则$AB$亦为正定矩阵。
+    \item $A,B$为正定矩阵，则$AB$的特征值非负（因为$AB\sim B^{1/2} A B^{1/2}$）。
+\end{itemize}
+
+\subsection{协方差矩阵}
+
+设随机向量 $\bm X \in \mathbb R^n$，其协方差矩阵为
+\[
+	\Sigma = \operatorname{Cov}(\bm X)
+	= \mathbb E\big[(\bm X - \mathbb E\,\bm X)(\bm X - \mathbb E\,\bm X)^T\big].
+\]
+
+对任意向量 $\bm a \in \mathbb R^n$，有
+\[
+	\bm a^T \Sigma \bm a
+	= \mathbb E\big[\bm a^T(\bm X - \mathbb E\,\bm X)(\bm X - \mathbb E\,\bm X)^T\bm a\big]
+	= \mathbb E\Big[\big(\bm a^T(\bm X - \mathbb E\,\bm X)\big)^2\Big] \ge 0.
+\]
+
+因此 $\Sigma$ 为 \textbf{半正定矩阵}。若 $\bm X$ 的分量线性无关且具有非退化方差，则 $\Sigma$ 进一步是正定矩阵。
+
+\subsection{随机矩阵}
+
+高斯零均值随机矩阵 $G \in \mathbb R^{n\times n}$ 的每个元素均独立同分布于正态分布 $\mathcal N(0,\sigma^2)$，
+则$\mathbb{E}(G^T G)\approx n \sigma^2 I_n,\mathbb{E}(Gxx^TG^T)\approx \sigma^2 ||x||_2 I_n$，
+$Gx$的每个元素近似独立同分布于$\mathcal N(0, \sigma^2\|x\|_2^2)$。
+
+对于随机向量$x$，其每个元素服从独立同分布于$\mathcal N(0, \sigma^2)$，则$w^Tx$服从$\mathcal N(0, \sigma^2\|w\|_2^2)$。
+
+\subsection{投影矩阵}
+
+设 $P \in \mathbb R^{n\times n}$ 满足
+\[
+    P^2 = P,
+\]则称 $P$ 为 \textbf{投影矩阵}（有时特指正交投影矩阵）。
+
+正交投影矩阵将向量投影到某子空间上，满足
+\[
+    <\bm x - P \bm x, P \bm x> = 0, \quad \forall \bm x \in \mathbb R^n,
+\]。
+
+投影矩阵具有以下性质：
+\begin{itemize}
+    \item 投影矩阵的特征值仅为 $0$ 或 $1$。
+    \item 若 $P$ 为对称矩阵，则为\textbf{正交投影矩阵}，此时 $P$ 可表示为某子空间上的正交投影。
+    \item 投影矩阵在数据分析、信号处理等领域有广泛应用，用于将数据投影到特定子空间以实现降维或特征提取。
+\end{itemize}
+
+正交投影矩阵 $P$ 可表示为
+\[
+    P = A(A^T A)^{-1} A^T,
+\]其中 $A$ 的列空间为投影的目标子空间。正交投影矩阵会使向量2范数不变大。
+
+\subsection{Householder变换}
+
+设 $\bm w \in \mathbb R^n$ 为非零向量，$\sigma \in \mathbb R$，则称矩阵
+\[
+    H = I - 2 \bm w \bm w^H, w^Hw = 1
+\]为 \textbf{Householder 矩阵}。
+
+性质（HW6）：
+\begin{itemize}
+    \item Householder 矩阵 $H$ 为对称矩阵且满足 $H^2 = I$，因此 $H^{-1} = H$。
+    \item Householder 矩阵 $H$ 为正交矩阵，其行列式为 $\det(H) = -1$。
+    \item Householder 变换可用于将任意向量 $\bm x$ 反射到与给定向量 $\bm y$ 共线的方向上，具体通过选择适当的 $\bm w$ 实现。
+\end{itemize}
+
+\subsection{初等变换矩阵}
+
+初等行变换相当于左乘一个初等矩阵，初等列变换相当于右乘一个初等矩阵。常见的初等变换矩阵包括：
+\begin{itemize}
+    \item 交换两行（列）的矩阵 $E_{ij}$。
+    \item 将某行（列）乘以非零常数的矩阵 $D_i(k)$。
+    \item 将某行（列）加上另一行（列）的倍数的矩阵 $L_{ij}(k)$。
+\end{itemize}
+
+\subsection{初等矩阵}
+
+初等矩阵公式：$E(u,v,\sigma) = I + \sigma uv^H$。初等矩阵 $E$ 通过左乘作用于矩阵 $A$，实现对 $A$ 的行变换；通过右乘作用于矩阵 $A$，实现对 $A$ 的列变换。
+
+性质：
+\begin{itemize}
+    \item 可逆性：初等矩阵 $E$ 总是可逆的，其逆矩阵为 $E(u,v,\sigma)^{-1} = E(u,v,\frac{\sigma}{\sigma v^H u - 1})$，前提是 $\sigma v^H u - 1\neq 0$。
+    \item 行列式：$\det(E) = 1 - \sigma v^H u$，证明可研究其特征值得到。
+    \item 对任意2个非零向量 $a, b$，存在初等矩阵 $E$ 使得 $Ea = b$.
+\end{itemize}
+
+\subsection{酉矩阵（复正交矩阵）}
+
+设 $Q \in \mathbb C^{n\times n}$ 满足
+\[
+    Q^H Q = Q Q^H = I,
+\]则称 $Q$ 为 \textbf{酉矩阵}。在实数情形下，酉矩阵即正交矩阵。
+
+酉矩阵具有以下重要性质：
+\begin{itemize}
+    \item 保距性：对任意向量 $\bm x, \bm y \in \mathbb C^n$，有 $\lVert Q\bm x - Q\bm y \rVert_2 = \lVert \bm x - \bm y \rVert_2$。
+    \item 保内积性：对任意向量 $\bm x, \bm y \in \mathbb C^n$，有 $(Q\bm x)^H(Q\bm y) = \bm x^H\bm y$。
+    \item 行列式的模为 $1$：$\lvert \det(Q) \rvert = 1$。
+    \item 特征值位于单位圆上：酉矩阵的所有特征值均满足 $\lvert \lambda \rvert = 1$。
+    \item 酉矩阵的逆等于其共轭转置：$Q^{-1} = Q^H$。
+    \item Kronecker 积封闭性：若 $Q_1, Q_2$ 均为酉矩阵，则 $Q_1 \otimes Q_2$ 亦为酉矩阵。
+\end{itemize}
+
+\subsection{正规矩阵}
+
+设 $A \in \mathbb C^{n\times n}$ 满足
+\[
+    A A^H = A^H A,
+\]则称 $A$ 为 \textbf{正规矩阵}。
+
+正规矩阵具有以下重要性质：
+\begin{itemize}
+    \item 存在酉矩阵 $Q$ 使 $A = Q \Lambda Q^H$，其中 $\Lambda$ 为对角矩阵（谱定理的推广）。
+    \item 所有 Hermitian 矩阵、酉矩阵和对称矩阵均为正规矩阵。
+    \item 正规矩阵的特征向量可选取为正交的。
+    \item 矩阵正规当且仅当$|\lambda_i|=\sigma_i$（schur分解）。
+\end{itemize}
+
+\subsection{Vandermonde 矩阵}
+
+给定数列 $x_1, x_2, \ldots, x_n$，对应的 \textbf{Vandermonde 矩阵} 可写为
+\[
+    V
+    =
+    \begin{bmatrix}
+        1        & 1        & \cdots & 1        \\
+        x_1      & x_2      & \cdots & x_n      \\
+        x_1^2    & x_2^2    & \cdots & x_n^2    \\
+        \vdots   & \vdots   & \ddots & \vdots   \\
+        x_1^{n-1}& x_2^{n-1}& \cdots & x_n^{n-1}
+    \end{bmatrix}.
+\]
+
+Vandermonde 矩阵在插值、多项式拟合等领域有重要应用。其行列式为
+\[
+    \det(V)
+    = \prod_{1 \le i < j \le n} (x_j - x_i),
+\]
+
+因此当且仅当 $x_1, x_2, \ldots, x_n$ 两两不同（互异）时，$V$ 为满秩矩阵。
+
+\subsection{Toeplitz 矩阵}
+
+给定序列 $c_0, c_1, \ldots, c_{n-1}$，对应的 $n \times n$ \textbf{Toeplitz 矩阵} 定义为
+\[
+    T
+    =
+    \begin{bmatrix}
+        c_0     & c_{-1}  & c_{-2}  & \cdots & c_{-(n-1)} \\
+        c_1     & c_0     & c_{-1}  & \cdots & c_{-(n-2)} \\
+        c_2     & c_1     & c_0     & \cdots & c_{-(n-3)} \\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots      \\
+        c_{n-1} & c_{n-2} & c_{n-3} & \cdots & c_0
+    \end{bmatrix},
+\]其中 $c_{-k} = c_k$ 可视为对称 Toeplitz 矩阵。
+
+\subsection{循环矩阵}
+
+给定序列 $c_0, c_1, \ldots, c_{n-1}$，对应的 $n \times n$ \textbf{循环矩阵} 定义为
+\[
+    C
+    =
+    \begin{bmatrix}
+        c_0     & c_{n-1} & c_{n-2} & \cdots & c_1 \\
+        c_1     & c_0     & c_{n-1} & \cdots & c_2 \\
+        c_2     & c_1     & c_0     & \cdots & c_3 \\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots \\
+        c_{n-1} & c_{n-2} & c_{n-3} & \cdots & c_0
+    \end{bmatrix}.
+\]
+
+循环矩阵在信号处理、图像处理等领域有重要应用。其特征值可通过离散傅里叶变换（DFT）计算，具体为
+\[
+    \lambda_k
+    = \sum_{j=0}^{n-1} c_j e^{-2\pi i jk / n}, \quad k = 0, 1, \ldots, n-1.
+\]
+
+\subsection{Fourier 矩阵}
+
+给定正整数 $N$，对应的 $N \times N$ \textbf{Fourier 矩阵} 定义为
+\[
+    F_N
+    =
+    \begin{bmatrix}
+        1               & 1               & 1               & \cdots & 1               \\
+        1               & \omega         & \omega^2       & \cdots & \omega^{N-1}   \\
+        1               & \omega^2       & \omega^4       & \cdots & \omega^{2(N-1)}\\
+        \vdots          & \vdots         & \vdots         & \ddots & \vdots         \\
+        1               & \omega^{N-1}   & \omega^{2(N-1)}& \cdots & \omega^{(N-1)^2}
+    \end{bmatrix},
+\]其中 $\omega = e^{-2\pi i / N}$ 为 $N$ 次单位根。
+
+反向 Fourier 矩阵为$F^{-1}_N = \frac{1}{N} F^{*}_N$。
+
+\subsection{Hardmard 矩阵}
+
+给定正整数 $n$，对应的 $2^n \times 2^n$ \textbf{Hadamard 矩阵} 定义为
+\[
+    H_{2^n}
+    =
+    \begin{bmatrix}
+        H_{2^{n-1}} & H_{2^{n-1}} \\
+        H_{2^{n-1}} & -H_{2^{n-1}}
+    \end{bmatrix},
+\]其中 $H_1 = [1]$。
+
+也可用Kronecker积表示为
+\[
+    H_{n} =
+    \begin{bmatrix}
+        1 & 1 \\
+        1 & -1
+    \end{bmatrix}.
+    \otimes H_{n/2}, \quad n = 2^k, k \in \mathbb N.
+\]
+
+快速计算 Hadamard 变换类似 FFT 的快速算法，时间复杂度为 $O(n \log n)$，核心公式：
+\[
+    H_n \bm x
+    =
+    \begin{bmatrix}
+        H_{n/2} & H_{n/2} \\
+        H_{n/2} & -H_{n/2}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bm x_{[1:n/2]} \\
+        \bm x_{[n/2+1:n]}
+    \end{bmatrix}
+\]
+
+性质：
+\begin{itemize}
+    \item 正交矩阵：$H_n H_n^T = n I_n$，即 $H_n$ 的列向量两两正交。
+    \item 行列式：$|\det(H_n)|^2=\det(H_n H_n^T)=n^n \implies |\det(H_n)|=n^{n/2}$。
+    \item 最大行列式：Hadamard 矩阵的行列式在所有元素绝对值为 $1$ 的矩阵中达到最大值。
+\end{itemize}
+
+\subsection{稀疏矩阵}
+
+稀疏矩阵是指大部分元素为零的矩阵。
+
+压缩感知中，$y=Ax$，其中 $A$ 为测量矩阵，$x$ 为稀疏向量，已知$x$的稀疏度$S=\left \| x \right \|_0$时：
+\begin{itemize}
+    \item 若$S=0$，非凸优化，启发式算法求次优解
+    \item 若$S=1$，凸优化，高复杂度，不可微，解集属于$S=0$的解集
+    \item 若$S=2$，凸优化，非零元素较多
+\end{itemize}
+
+关于$L_1$解集属于$L_2$解集的充要条件的讨论见HW4，稀疏信号$L_1$重构见\ref{sec:rip} RIP。
+
+\subsection{Markov 矩阵}
+
+设 $P \in \mathbb R^{n\times n}$ 满足
+\[    P_{ij} \ge 0, \quad \sum_{j=1}^n P_{ij} = 1, \quad \forall i = 1, 2, \ldots, n,
+\]则称 $P$ 为 \textbf{Markov 矩阵}。
+
+Markov 矩阵具有以下性质：
+\begin{itemize}
+    \item 所有特征值的模均不大于 $1$，且至少存在一个特征值等于 $1$，其特征向量为 $\bm 1$（全 $1$ 向量），其代数重数等于几何重数。
+    \item 幂仍然为Markov矩阵。
+    \item $A^p \rightarrow ex^T$ 当且仅当 $A$ 是不可约且非周期的 Markov 矩阵，其中 $e$ 为某个概率向量，$x$ 为左特征向量对应于特征值 $1$，即$A^Tx=x,x^Te=1$。
+\end{itemize}
+
+\subsection{上/下三角矩阵}
+
+矩阵 $A \in \mathbb R^{n\times n}$ 若满足
+\begin{itemize}
+    \item $A_{ij} = 0$，当 $i > j$，则称 $A$ 为 \textbf{上三角矩阵}。
+    \item $A_{ij} = 0$，当 $i < j$，则称 $A$ 为 \textbf{下三角矩阵}。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 上/下三角矩阵的乘积仍为上/下三角矩阵。
+    \item 上/下三角矩阵的逆（若存在）仍为上/下三角矩阵。
+    \item 上/下三角矩阵的行列式为其对角线元素的乘积。
+    \item 上/下三角矩阵的特征值为其对角线元素。
+\end{itemize}
+
+\subsection{旋转矩阵}
+
+二维空间中的旋转矩阵表示绕原点逆时针旋转角度 $\theta$ 的线性变换，定义为
+\[    R(\theta)
+    =
+    \begin{bmatrix}
+        \cos \theta & -\sin \theta \\
+        \sin \theta & \cos \theta
+    \end{bmatrix}.
+\]
+
+\section{矩阵关系}
+
+\subsection{相似}
+
+设 $A, B \in \mathbb R^{n\times n}$，若存在可逆矩阵 $P$ 使得
+\[    B = P^{-1} A P,
+\]则称 $A$ 与 $B$ \textbf{相似}。
+
+相似矩阵具有以下性质：
+\begin{itemize}
+    \item 相似关系为等价关系：自反性、对称性、传递性均成立。
+    \item 相似矩阵具有相同的特征值（含重数）、行列式、迹、秩等不变量。如果是酉相似，则矩阵拥有相同的奇异值。
+    \item 相似矩阵的特征向量通过变换矩阵 $P$ 相互关联。
+    \item 相似变换常用于矩阵的对角化、Jordan 标准形等分解形式。
+\end{itemize}
+
+\subsection{合同}
+
+设 $A, B \in \mathbb R^{n\times n}$ 为对称矩阵，若存在可逆矩阵 $P$ 使得
+\[    B = P^T A P,
+\]则称 $A$ 与 $B$ \textbf{合同}。
+
+合同矩阵具有以下性质：
+\begin{itemize}
+    \item 合同关系为等价关系：自反性（$A = I^T A I$）、对称性、传递性均成立。
+    \item 合同矩阵具有相同的惯性指数（正惯性指数、负惯性指数、零惯性指数）。
+    \item 合同变换常用于二次型的规范形、矩阵的正定性分析等。
+    \item 合同变换不改变特征值的符号。
+\end{itemize}
+
+\section{运算}
+\subsection{直和}
+给定 $A \in \mathbb R^{m\times n}$、$B \in \mathbb R^{p\times q}$，其\textbf{直和（direct sum）}定义为
+\[
+	A \oplus B
+	=
+	\begin{bmatrix}
+		A & 0 \\
+		0 & B
+	\end{bmatrix}
+	\in \mathbb R^{(m+p)\times(n+q)}.
+\]
+性质：
+\begin{itemize}
+    \item 交换、结合：$A \oplus B = B \oplus A$，$(A \oplus B) \oplus C = A \oplus (B \oplus C)$。
+    \item 分配律：$(A \oplus B)(C \oplus D) = AC \oplus BD$，$(A \oplus B) + (C \oplus D) = (A + C) \oplus (B + D)$。
+    \item 逆与转置：若 $A, B$ 可逆，则 $(A \oplus B)^{-1} = A^{-1} \oplus B^{-1}$；$(A \oplus B)^T = A^T \oplus B^T$。
+	\item 尺寸相加：$\dim(A \oplus B) = (m+p)\times(n+q)$。
+	\item 秩相加：$\operatorname{rank}(A \oplus B) = \operatorname{rank}(A) + \operatorname{rank}(B)$。
+	\item 行列式与迹：若 $A, B$ 均为方阵，则 $\det(A \oplus B) = \det(A)\det(B)$，$\operatorname{tr}(A \oplus B) = \operatorname{tr}(A) + \operatorname{tr}(B)$。
+	\item 特征值为并集：若 $A, B$ 方阵，则 $A \oplus B$ 的特征值集合为 $A$ 与 $B$ 特征值的并集（重数相加）。
+\end{itemize}
+
+\subsection{Hardmard 积}
+给定同型矩阵 $A, B \in \mathbb R^{m\times n}$，\textbf{Hardmard 积}（Schur 乘积）逐元素相乘：
+\[
+	(A * B)_{ij} = A_{ij} B_{ij}.
+\]
+性质：
+\begin{itemize}
+	\item 交换、结合、对加法分配：$A * B = B * A$，$(A * B) * C = A * (B * C)$，$(A+B) * C = A * C + B * C$。
+    \item 如果$A,B,D$都是$m\times m$矩阵，并且$D$是对角阵，则$(DA)*(BD) = D(A*B)D$（HW1）。
+	\item 与 Frobenius 内积的关系：$\langle A, B \rangle_F = \operatorname{tr}(A^T B) = \mathbf 1^T (A * B) \mathbf 1$，其中 $\mathbf 1$ 为全 $1$ 向量。
+    \item $rank(A*B)\le rank(A)rank(B)$（HW1）。
+	\item Schur 乘积定理：若 $A, B$ 为对称半正定矩阵，则 $A * B$ 亦为半正定矩阵（HW8）。
+\end{itemize}
+
+\subsection{Kronecker 积}
+给定 $A \in \mathbb R^{m\times n}$、$B \in \mathbb R^{p\times q}$，其\textbf{Kronecker 积}定义为
+\[
+	A \otimes B
+	=
+	\begin{bmatrix}
+		a_{11}B & \cdots & a_{1n}B \\
+		\vdots  & \ddots & \vdots  \\
+		a_{m1}B & \cdots & a_{mn}B
+	\end{bmatrix}
+	\in \mathbb R^{(mp)\times(nq)}.
+\]
+常用性质（假设尺寸可乘）：
+\begin{itemize}
+    \item 结合律：$(A \otimes B) \otimes C = A \otimes (B \otimes C)$（HW1）。
+    \item 分配律：$(A + B) \otimes C = A \otimes C + B \otimes C$，$A \otimes (B + C) = A \otimes B + A \otimes C$。
+	\item 混合乘法：$(A \otimes B)(C \otimes D) = (AC) \otimes (BD)$。
+	\item 转置与逆：$(A \otimes B)^T = A^T \otimes B^T$；若 $A, B$ 可逆，则 $(A \otimes B)^{-1} = A^{-1} \otimes B^{-1}$。
+	\item 秩、迹、行列式：$\operatorname{rank}(A \otimes B) = \operatorname{rank}(A)\,\operatorname{rank}(B)$（HW1）；若 $A, B$ 方阵，$\operatorname{tr}(A \otimes B) = \operatorname{tr}(A)\operatorname{tr}(B)$，$\det(A \otimes B) = \det(A)^p \det(B)^m$。
+	\item 特征值：若 $\lambda$ 为 $A$ 的特征值、$\mu$ 为 $B$ 的特征值，则 $\lambda\mu$ 为 $A \otimes B$ 的特征值。
+	\item 向量化恒等式：$\operatorname{vec}(A X B) = (B^T \otimes A)\operatorname{vec}(X)$，便于将矩阵方程转化为线性方程组。
+\end{itemize}
+
+\subsection{迹}
+
+给定方阵 $A \in \mathbb R^{n\times n}$，其\textbf{迹}定义为主对角线元素之和：
+\[
+    \operatorname{tr}(A)
+    = \sum_{i=1}^n a_{ii}.
+\]
+
+性质：
+\begin{itemize}
+    \item 线性：$\operatorname{tr}(A + B) = \operatorname{tr}(A) + \operatorname{tr}(B)$，$\operatorname{tr}(kA) = k\,\operatorname{tr}(A)$。
+    \item 循环不变性：$\operatorname{tr}(AB) = \operatorname{tr}(BA)$，但一般 $\operatorname{tr}(AB) \neq \operatorname{tr}(A)\operatorname{tr}(B)$。
+    \item 与特征值的关系：$\operatorname{tr}(A) = \sum_{i=1}^n \lambda_i$，其中 $\lambda_i$ 为 $A$ 的特征值（含重数）。
+    \item 与 Frobenius 内积的关系：$\langle A, B \rangle_F = \operatorname{tr}(A^T B)$。
+    \item $tr(A^2)\le tr(A^H A)$，等号当且仅当 $A$ 为hermitian矩阵时成立。
+    \item $\operatorname{tr}(AB)=vec(B)^T vec(A^T), \operatorname{tr}(A^T)=\operatorname{tr}(A)$
+    \item $\operatorname{tr}(ABCD)=vec(D)^T(A\otimes C^T)vec(B^T)$（HW2）
+\end{itemize}
+
+\subsection{伪逆（Moore-Penrose 逆）}
+
+设 $A \in \mathbb R^{m\times n}$，其\textbf{Moore--Penrose 伪逆} $A^{+} \in \mathbb R^{n\times m}$ 满足以下四个条件：
+\begin{itemize}
+    \item $A A^{+} A = A$，
+    \item $A^{+} A A^{+} = A^{+}$，
+    \item $(A A^{+})^T = A A^{+}$，
+    \item $(A^{+} A)^T = A^{+} A$。
+\end{itemize}
+
+伪逆是唯一的，计算方法：
+\begin{itemize}
+    \item 一般情形下，可通过 SVD 分解 $A = U \Sigma V^T$，则 $A^{+} = V \Sigma^{+} U^T$，其中 $\Sigma^{+}$ 通过将 $\Sigma$ 中非零奇异值取倒数并转置得到。
+    \item 若 $A$ 为满列秩矩阵，则左伪逆 $A^{+} = (A^T A)^{-1} A^T$，对应最小二乘解$\min_{\bm x} \lVert A\bm x - \bm b \rVert_2$。
+    \item 若 $A$ 为满行秩矩阵，则右伪逆 $A^{+} = A^T (A A^T)^{-1}$，对应最小范数解$\min_{\bm x} \lVert \bm x \rVert_2$，使 $A\bm x = \bm b$。
+    \item 秩分解得$A=BC$，则$A^+=C^+B^+$
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 若 $A$ 可逆，则 $A^{+} = A^{-1}$。
+    \item $(A^T)^{+} = (A^{+})^T$。
+    \item $A^+=(A^TA)^+A^T=A^T(AA^T)^+, A^T=A^TAA^+,Im(A^+)=Row(A)$。
+    \item $(kA)^{+} = \frac{1}{k} A^{+}$，其中 $k \neq 0$。
+    \item $(A B)^{+} \neq B^{+} A^{+}$，但若 $A$ 为满列秩且 $B$ 为满行秩，则 $(A B)^{+} = B^{+} A^{+}$。
+    \item $A A^{+}$ 为 $A$ 的列空间的正交投影矩阵，$A^{+} A$ 为 $A^T$ 的列空间的正交投影矩阵。
+    \item 零向量的伪逆为零：$\bm 0^{+} = \bm 0$。
+    \item $Col(A^{+}) = Row(A)$，$Row(A^{+}) = Col(A)$。
+    \item 令$x_0=A^+b$，则$||Ax_0-y||_2\le ||Ax-y||_2$，等号成立当且仅当$A(x-x_0)=0$；且在所有等号成立的解中，$x_0$的2范数唯一最小（HW3）。
+\end{itemize}
+
+\subsection{行列式与可逆性}
+
+给定方阵 $A \in \mathbb R^{n\times n}$，其\textbf{行列式}定义为
+\[
+    |A|=\det(A)
+    = \sum_{\sigma \in S_n} \operatorname{sgn}(\sigma)
+        \prod_{i=1}^n a_{i, \sigma(i)},
+\]其中 $S_n$ 为所有 $n$ 阶排列的集合，$\operatorname{sgn}(\sigma)$ 为排列 $\sigma$ 的符号。
+
+伴随矩阵对行列式的计算也很有用，定义为
+\[
+    \operatorname{adj}(A)
+    = \big[(-1)^{i+j} \det(M_{ji})\big]_{n\times n},
+\]其中 $M_{ji}$ 为去掉 $A$ 的第 $j$ 行第 $i$ 列后的 $(n-1)\times(n-1)$ 子矩阵。则有
+\[
+    A \cdot \operatorname{adj}(A)
+    = \operatorname{adj}(A) \cdot A
+    = \det(A) I.
+\]
+
+性质：
+\begin{itemize}
+    \item 线性：$\det(kA) = k^n \det(A)$。
+    \item 乘积：$\det(AB) = \det(A)\det(B)$，假设$A,B$都为方阵。
+    \item 可交换：$\det(AB) = \det(BA)$。
+    \item 逆与转置：若 $A$ 可逆，则 $\det(A^{-1}) = 1/\det(A)$；$\det(A^T) = \det(A)$。
+    \item 与特征值的关系：$\det(A) = \prod_{i=1}^n \lambda_i$，其中 $\lambda_i$ 为 $A$ 的特征值（含重数）。
+    \item 与奇异值的关系：$|\det(A)|=\prod_i \sigma_i$
+    \item 初等变换对行列式的影响：
+    \begin{itemize}
+        \item 交换两行（列）：行列式变号。
+        \item 某行（列）乘以非零常数 $k$：行列式乘以 $k$。
+        \item 某行（列）加上另一行（列）的倍数：行列式不变。
+    \end{itemize}
+    \item $\det(A^H)=conj(\det(A))$，其中 $A^H$ 为 $A$ 的共轭转置。
+    \item 对于ABCD型分块矩阵，若 $A$ 可逆，则
+    \[
+        \det\begin{bmatrix}
+            A & B \\
+            C & D
+        \end{bmatrix}
+        = \det(A) \det(D - C A^{-1} B)
+        = \det(D) \det(A - B D^{-1} C).
+    \]
+    \item 当$A,B$列正交时，$\det (A^HB)\le 1$。因为$AA^H$是正交投影矩阵，$||A^HB||_2\le 1$。
+    \item $|\det(A^HB)|^2 \le \det(A^HA) \det(B^HB)$，等号当且仅当 $A$ 与 $B$ 线性相关时成立，即存在酉矩阵 $Q$ 使得 $A = B Q$（HW5，QR分解）。
+    \item 正定矩阵的行列式为正，半正定矩阵的行列式非负。
+    \item Hardmard不等式：若$A$为半正定矩阵，则（HW4）
+    \[
+        \det(A) \le \prod_{i=1}^n a_{ii},
+    \]等号当且仅当$A$为对角矩阵时成立（用数学归纳法和初等变换证，也可用QR分解$|A|<\prod_i|r_{ii}|\le \prod_i||r_i||_2=\prod_i||a_i||_2$，还可用LDL分解证）（行列式题灵活使用\textbf{分解相似合同}）。
+    \item 若A、B均为半正定矩阵，则
+    \[
+        \det(A + B)^{1/m} \ge \det(A)^{1/m} + \det(B)^{1/m}.
+    \]证明见图\ref{fig:det_inequality}或HW2，若m=1则可用$A^{1/2}$来证。
+    \begin{figure}[hbtp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{det_inequality.png}
+        \caption{行列式不等式证明}
+        \label{fig:det_inequality}
+    \end{figure}
+    \item $\log\det X$当X正定为凸函数，即$\det(\theta X+(1-\theta)Y)\ge(\det X)^\theta(\det Y)^{1-\theta}$，拆分$X^{1/2}$来证；也可求导证：$g'(t)=tr((X+tV)^{-1}V),g''(t)=-tr((X+tV)^{-1}V(X+tV)^{-1}V)$
+    \item 严格对角占优矩阵（矩阵的每一行主对角线元素的模都大于该行非主对角线元素模之和）是可逆的。
+\end{itemize}
+
+\subsection{矩阵指数}
+
+给定方阵 $A \in \mathbb R^{n\times n}$，其\textbf{矩阵指数}定义为
+\[
+    e^{A}
+    = \sum_{k=0}^{\infty} \frac{A^k}{k!}.
+\]
+
+由Cayley-Hamilton定理可以计算矩阵指数，若 $A$ 的特征多项式为 $p(\lambda) = \lambda^n + c_{n-1}\lambda^{n-1} + \cdots + c_1 \lambda + c_0$，则存在唯一的多项式 $q(\lambda)$，使得
+\[    e^{At} = \sum_{k=0}^{\infty} \frac{(At)^k}{k!} = q(At)
+\]且 $\deg(q) < n$。
+
+存在等式：$e^{\lambda_i t} = q(\lambda_i t), \frac{d^k}{d t^k} e^{\lambda_i t} = \frac{d^k}{d t^k} q(\lambda_i t)$，其中 $\lambda_i$ 为 $A$ 的特征值。
+使用待定系数法即可求出 $q(\lambda)$ 的系数。
+
+例题：
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{expA.png}
+    \caption{矩阵指数例题}
+\end{figure}
+
+\section{定理}
+
+\subsection{Cayley-Hamilton定理与特征/最小多项式}
+
+设 $A \in \mathbb R^{n\times n}$，其特征多项式为
+\[
+    p(\lambda)
+    = \det(\lambda I - A)
+    = \lambda^n + c_{n-1}\lambda^{n-1} + \cdots + c_1 \lambda + c_0.
+\]
+
+则 Cayley-Hamilton 定理断言，矩阵 $A$ 满足其特征多项式（schur分解证）（HW7）：
+\[
+    p(A)
+    = A^n + c_{n-1}A^{n-1} + \cdots + c_1 A + c_0 I
+    = 0.
+\]
+
+性质：
+\begin{itemize}
+    \item 特征多项式的根即为 $A$ 的所有特征值（含重数）。
+    \item $c_0 = (-1)^n \det(A)$，$c_{n-1} = -\operatorname{tr}(A)$。
+    \item 若 $A$ 可逆，则 $A^{-1} = -\frac{1}{c_0} (A^{n-1} + c_{n-1} A^{n-2} + \cdots + c_1 I)$。
+\end{itemize}
+
+此外，零化多项式（annihilating polynomial）是指满足 $q(A) = 0$ 的非零多项式 $q(\lambda)$。Cayley-Hamilton 定理表明，特征多项式 $p(\lambda)$ 是 $A$ 的一个零化多项式，性质：
+\begin{itemize}
+    \item 最小多项式 $m(\lambda)$ 是所有零化多项式中次数最低的一个，且 $m(\lambda)$ 整除 $p(\lambda)$。
+    \item 若 $A$ 可对角化，则 $m(\lambda)$ 的根即为 $A$ 的所有不同特征值。
+    \item 若 $A$ 的特征值均不相等，则 $m(\lambda) = p(\lambda)$。
+    \item 每个特征值都是最小多项式的根。
+    \item 若 $A$ 的 Jordan 标准形中，某特征值对应的最大 Jordan 块的大小为 $k$，则该特征值在最小多项式中的重数为 $k$。
+\end{itemize}
+
+\subsection{Frobenius 不等式及常见秩不等式}
+
+设 $A \in \mathbb R^{m\times n}$，$B \in \mathbb R^{n\times p}$，则 \textbf{Frobenius 秩不等式}为
+\[
+	\operatorname{rank}(A) + \operatorname{rank}(B)
+	- n
+	\;\le\;
+	\operatorname{rank}(AB)
+	\;\le\;
+	\min\big\{\operatorname{rank}(A),\, \operatorname{rank}(B)\big\}.
+\]
+
+常见的秩不等式还包括：
+\begin{itemize}
+	\item 对任意可加同型映射 $A, B$，有
+	\[
+		\operatorname{rank}(A + B)
+        \le \operatorname{rank}([A\ B])
+		\le \operatorname{rank}(A) + \operatorname{rank}(B).
+	\]
+	\item 若 $A$ 可逆，则 $\operatorname{rank}(AB) = \operatorname{rank}(B)$，$\operatorname{rank}(BA) = \operatorname{rank}(B)$。
+    \item $\operatorname{rank}(A+B)\le \operatorname{rank}([A\ B])\le \operatorname{rank}(A)+\operatorname{rank}(B)$
+    \item 伴随矩阵 $\operatorname{adj}(A)$ 满足
+    \[
+        \operatorname{rank}(\operatorname{adj}(A)) =
+        \begin{cases}
+            n, & \text{若 } \operatorname{rank}(A) = n; \\
+            1, & \text{若 } \operatorname{rank}(A) = n-1; \\
+            0, & \text{若 } \operatorname{rank}(A) < n-1.
+        \end{cases}
+    \]
+    \item 设 $X \in \mathbb R^{m\times p}$ 为满列秩矩阵，$Y \in \mathbb R^{q\times n}$ 为满行秩矩阵，则
+    \[
+        \operatorname{rank}(A)
+        = \operatorname{rank}(X A Y).
+    \]
+    \item $\operatorname{rank}(A) = \operatorname{rank}(A^T A) = \operatorname{rank}(A A^T)$。
+\end{itemize}
+
+\subsection{秩--零化度定理}
+
+设线性映射 $T: V \to W$，其矩阵表示为 $A$。
+当 $V$ 是有限维线性空间（$\dim V < \infty$）时，有著名的 \textbf{秩--零化度定理}：
+\[
+	\dim \operatorname{Im}(T) + \dim \ker(T) = \dim V.
+\]
+其中$ker(T)\equiv \{\bm v \in V : T(\bm v) = \bm 0\}$，注意$T$的核空间是属于$V$的子空间。
+
+或者以矩阵形式表示为
+\[
+    \operatorname{rank}(A) + \operatorname{nullity}(A) = n,
+\]其中 $A \in \mathbb R^{m\times n}$，$n$ 为列数。
+
+在线性方程组 $A\bm x = \bm b$ 的语境下，$\operatorname{nullity}(A)$ 给出齐次解空间的维数，而 $\operatorname{rank}(A)$ 控制非齐次方程是否有解及解的维数。
+
+\subsection{维数定理}
+设 $V_1, V_2$ 为线性空间 $V$ 的子空间，则有以下\textbf{维数定理}：
+\[
+    \operatorname{dim}V_1+\operatorname{dim}V_2=\operatorname{dim}(V_1+V_2)+\operatorname{dim}(V_1\cap V_2)
+\]
+
+\subsection{Rayleigh 商与极值}
+
+设 $A \in \mathbb R^{n\times n}$ 为对称矩阵，$\bm x \in \mathbb R^n$ 为非零向量。定义 \textbf{Rayleigh 商} 为
+\[
+    R(\bm x, A)
+    = \frac{\bm x^T A \bm x}{\bm x^T \bm x}.
+\]
+
+Rayleigh 商的极值与 $A$ 的特征值密切相关：
+\begin{itemize}
+    \item 最大特征值 $\lambda_{\max}$ 满足
+    \[
+        \lambda_{\max}
+        = \max_{\bm x \neq 0} R(A, \bm x).
+    \]
+    \item 最小特征值 $\lambda_{\min}$ 满足
+    \[
+        \lambda_{\min}
+        = \min_{\bm x \neq 0} R(A, \bm x).
+    \]
+\end{itemize}
+
+如果令特征向量空间$U_m=span\{u_1,\cdots,u_m\}, V_m=span\{u_{N-m+1},\cdots,u_N\}$，则（HW6/8）
+\[
+    \lambda_k
+    = \min_{\bm x \in V_{k-1}^{\perp}, \bm x \neq 0}
+      R(A, \bm x)
+    = \max_{\bm x \in U_k, \bm x \neq 0}
+      R(A, \bm x)
+\]
+\[    \lambda_{N-k+1}
+    = \max_{\bm x \in U_{k-1}^{\perp}, \bm x \neq 0}
+      R(A, \bm x)
+    = \min_{\bm x \in V_k, \bm x \neq 0}
+      R(A, \bm x)
+\]
+
+其他性质：
+\begin{itemize}
+    \item $R(\alpha x, \beta A)=\beta R(x,A)$
+    \item $R(x,A-\alpha I)=R(x,A)-\alpha$
+    \item $x \perp (A-R(x,A)I)x$
+    \item $\lVert (A - R(x,A)I)x \rVert = \lVert (A-\mu I)x \rVert$
+    \item 设$W(A)=\{R(x,A):x\neq0\}$，则$W(A+B) \subseteq W(A)+W(B)$，$W(A+\beta I)=W(A)+\beta$，$W(\alpha A)=\alpha W(A)$
+\end{itemize}
+
+\subsection{Gersgrin 圆}
+
+设 $A = [a_{ij}] \in \mathbb R^{n\times n}$，定义第 $i$ 行的 Gersgrin 圆心与半径为
+\[
+    C_i = a_{ii}, \quad R_i = \sum_{j \neq i} |a_{ij}|.
+\]
+
+则 $A$ 的所有特征值均位于这些 Gersgrin 圆的并集中，即
+\[
+    \lambda \in \bigcup_{i=1}^n \{ z \in \mathbb C : |z - C_i| \le R_i \}.
+\]
+
+\subsection{Courant-Fischer 极小极大定理}
+
+设 $A \in \mathbb R^{n\times n}$ 为对称矩阵，按非递增顺序排列其特征值为 $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_n$。则第 $k$ 个特征值可通过以下极小极大原理表述（HW8）：
+\[
+    \lambda_k
+    = \min_{\substack{S \subset \mathbb R^n \\ \dim(S) = n-k+1}}
+      \max_{\substack{\bm x \in S \\ \bm x \neq 0}}
+      R(A, \bm x)
+    = \max_{\substack{S \subset \mathbb R^n \\ \dim(S) = k}}
+      \min_{\substack{\bm x \in S \\ \bm x \neq 0}}
+      R(A, \bm x)
+\]
+
+\[
+    \lambda_{N-k+1}
+    = \max_{\substack{S \subset \mathbb R^n \\ \dim(S) = n-k+1}}
+      \min_{\substack{\bm x \in S \\ \bm x \neq 0}}
+      R(A, \bm x)
+    = \min_{\substack{S \subset \mathbb R^n \\ \dim(S) = k}}
+      \max_{\substack{\bm x \in S \\ \bm x \neq 0}}
+      R(A, \bm x).
+\]
+
+\subsection{Weyl 定理}
+
+设 $A, B \in \mathbb R^{n\times n}$ 为对称矩阵，按非递增顺序排列其特征值分别为 $\lambda_1(A) \ge \lambda_2(A) \ge \cdots \ge \lambda_n(A)$ 和 $\lambda_1(B) \ge \lambda_2(B) \ge \cdots \ge \lambda_n(B)$。则 $A + B$ 的特征值 $\lambda_k(A + B)$ 满足以下不等式（HW6）：
+\[
+    \lambda_{i}(A) + \lambda_{j}(B)
+    \ge \lambda_{i+j-1}(A + B), \quad \text{若 } i + j - 1 \le n,
+\]
+\[
+    \lambda_{i}(A) + \lambda_{j}(B)
+    \le \lambda_{i+j-n}(A + B), \quad \text{若 } i + j - n \ge 1.
+\]
+
+推论（HW6）：
+\[
+    \lambda_k(A) + \lambda_n(B)
+    \le \lambda_k(A + B)
+    \le \lambda_k(A) + \lambda_1(B), \quad \text{其中 } 1 \le k \le n.
+\]
+
+技巧：最大特征值和最小特征值的关系往往可用倒数联系。
+
+\subsection{Cauchy 交错定理}
+
+设 $A \in \mathbb R^{n\times n}$ 为对称矩阵，按非递增顺序排列其特征值为 $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_n$。
+设 $B \in \mathbb R^{(n-1)\times(n-1)}$ 为 $A$ 的任一主子矩阵，按非递增顺序排列其特征值为 $\mu_1 \ge \mu_2 \ge \cdots \ge \mu_{n-1}$。则有以下交错不等式（HW8）：
+\[    \lambda_1 \ge \mu_1 \ge \lambda_2 \ge \mu_2 \ge \cdots \ge \mu_{n-1} \ge \lambda_n.
+\]
+
+更一般地，设 $B \in \mathbb R^{k\times k}$ 为 $A$ 的任一主子矩阵，按非递增顺序排列其特征值为 $\mu_1 \ge \mu_2 \ge \cdots \ge \mu_k$。则有以下交错不等式：
+\[    \lambda_i \ge \mu_i \ge \lambda_{n-k+i}, \quad \text{其中 } i = 1, 2, \ldots, k.
+\]
+
+可从Courant–Fischer极小极大定理出发证明。
+
+\subsection{RIP}
+\label{sec:rip}
+
+设测量矩阵 $A \in \mathbb R^{m\times n}$，则 $A$ 满足\textbf{限制等距性质}（Restricted Isometry Property, RIP）如果存在常数 $\delta_S \in (0, 1)$ 使得对于所有 $S$-稀疏向量 $\bm x \in \mathbb R^n, \lVert x \rVert_0 \le S$，都有
+\[    (1 - \delta_S) \lVert \bm x \rVert_2^2
+    \le \lVert A \bm x \rVert_2^2
+    \le (1 + \delta_S) \lVert \bm x \rVert_2^2.
+\]
+
+通过求解$L_1$优化问题可以重构稀疏信号：
+\[    \min_{\bm x \in \mathbb R^n} \lVert \bm x \rVert_1, \quad \text{s.t. } A \bm x = \bm b.
+\]，需满足以下任一条件：
+\begin{itemize}
+    \item $\delta_{S} + \delta_{2S} + \delta_{3S} < 1$
+    \item $\delta_{2S} < \sqrt{2} - 1$
+    \item $\delta_{S} < 0.307$
+\end{itemize}
+
+\subsection{Schur 补定理}
+
+设矩阵 $M$ 分块表示为
+\[    M =
+    \begin{bmatrix}
+        A & B \\
+        C & D
+    \end{bmatrix},
+\]其中 $A \in \mathbb R^{k\times k}$，$D \in \mathbb R^{(n-k)\times(n-k)}$。则称
+\[    S = D - C A^{-1} B
+\]为 $M$ 关于 $A$ 的\textbf{Schur 补}。
+
+若 $A$ 可逆，则以下命题等价：
+\begin{itemize}
+    \item $M$ 为正定矩阵；
+    \item $A$ 为正定矩阵，且 $S$ 为正定矩阵；
+    \item $D$ 为正定矩阵，且 $A - B D^{-1} C$ 为正定矩阵。
+\end{itemize}
+
+\subsection{Sylvester方程}
+
+设 $A \in \mathbb R^{m\times m}$，$B \in \mathbb R^{n\times n}$，$C \in \mathbb R^{m\times n}$。则\textbf{Sylvester 方程}
+\[    A X - X B = C
+\]存在唯一解 $X \in \mathbb R^{m\times n}$的充分必要条件为 $A$ 和 $B$ 没有共同的特征值。
+
+简短证明：
+\begin{itemize}
+    \item $A^kX=X B^k$，$p(A)X=X p(B)$，其中$p(\lambda)$为$A$的特征多项式，得到$p(A)=0$，则$p(A)X=X p(B)=0$。
+    \item 若$A$和$B$没有共同特征值，则$p(B)$可逆，得到$X=0$，则齐次方程只有零解，非齐次方程有唯一解。
+    \item 反之，若$A$和$B$有共同特征值$\lambda$，则存在非零向量$u,v$使得$Au=\lambda u,Bv=\lambda v$，则$X=uv^T$为齐次方程的非零解，非齐次方程无唯一解。
+\end{itemize}
+
+\subsection{Weinstain-Aronszajn恒等式}
+\label{sec:weinstein-aronszajn}
+
+设 $A \in \mathbb R^{m\times n}$，$B \in \mathbb R^{n\times m}$，则有以下恒等式：
+\[    \det(I_m + A B)
+    = \det(I_n + B A).
+\]
+
+简短证明：
+构造分块矩阵
+\[        M =
+    \begin{bmatrix}
+        I_m & A \\
+        -B & I_n
+    \end{bmatrix}.
+\]，两种初等变换即证。
+
+$AB$和$BA$的非零特征值和代数重数相同，证明可令$A=A,B=-B/\lambda$，得$p_{AB}(\lambda)=\lambda^{m-n}p_{BA}$。非另特征值的几何重数也相同：$BA(BX)=B(AX)=\lambda(BX),BX\ne 0$。由上可知，零特征值的代数重数相差$m-n$。
+
+\section{研究}
+
+\subsection{方程有无解}
+
+设线性方程组 $A\bm x = \bm b$，其中 $A \in \mathbb R^{m\times n}$，$\bm b \in \mathbb R^m$。则该方程组：
+\begin{itemize}
+    \item 有解的充分必要条件为 $\operatorname{rank}(A) = \operatorname{rank}([A\ \bm b])$。
+    \item 唯一解的充分必要条件为 $\operatorname{rank}(A) = \operatorname{rank}([A\ \bm b]) = n$。
+    \item 无穷多解的充分必要条件为 $\operatorname{rank}(A) = \operatorname{rank}([A\ \bm b]) < n$。
+    \item 无解的充分必要条件为 $\operatorname{rank}(A) < \operatorname{rank}([A\ \bm b])$。
+\end{itemize}
+
+\subsection{0--1 矩阵满秩的概率}
+
+随机生成的 $0$--$1$ 矩阵（各元素独立同分布）满秩的概率：
+\[
+    P(\text{满秩})
+    = \prod_{i=0}^{n-1} \big(1 - 2^{i-n}\big)
+\]其中 $n$ 为矩阵的行数或列数（假设为方阵）。当 $n$ 较大时，满秩概率趋近于 $1$。
+
+\subsection{矩阵的条件数}
+
+对于$Ax=b$线性方程组，条件数衡量输入扰动对解的影响程度：
+\[
+    \frac{\lVert \delta x \rVert}{\lVert x + \delta x \rVert}
+    \le \kappa(A) \frac{\lVert \delta A \rVert}{\lVert A \rVert},
+\]其中 $\kappa(A)$ 为矩阵 $A$ 的\textbf{条件数}，定义为
+\[
+    \kappa(A)
+    = \lVert A \rVert \lVert A^{-1} \rVert.
+\]
+也等于最大奇异值与最小奇异值之比。
+
+\subsection{特征值与特征向量}
+
+设 $A \in \mathbb R^{n\times n}$，若存在非零向量 $\bm x \in \mathbb R^n$ 和标量 $\lambda \in \mathbb R$ 使得
+\[    A \bm x = \lambda \bm x,
+\]则称 $\lambda$ 为 $A$ 的\textbf{特征值}，$\bm x$ 为对应的\textbf{特征向量}。
+
+也存在左特征值与左特征向量的概念，满足
+\[    \bm y^T A = \lambda \bm y^T,
+\]其中 $\bm y \in \mathbb R^n$ 为非零向量。
+
+绝对值最大的特征值称为\textbf{谱半径}，记为 $\rho(A) = \max_i |\lambda_i|$。
+
+性质：
+\begin{itemize}
+    \item 特征值可通过求解特征多项式 $\det(\lambda I - A) = 0$ 得到。
+    \item 不同特征值对应的特征向量线性无关。
+    \item 若 $A$ 可对角化，则存在可逆矩阵 $P$ 使得 $A = P \Lambda P^{-1}$，其中 $\Lambda$ 为对角矩阵，其对角线元素为 $A$ 的特征值。相似也不改变矩阵特征值。
+    \item 特征值与矩阵的迹和行列式的关系：$\operatorname{tr}(A) = \sum_{i=1}^n \lambda_i$，$\det(A) = \prod_{i=1}^n \lambda_i$。
+    \item 若 $A$ 为实对称矩阵，则其特征值均为实数，且存在正交矩阵 $Q$ 使得 $A = Q \Lambda Q^T$。
+    \item 左特征值与右特征值相同，左特征向量与右特征向量不一定相同。
+    \item $AB$ 与 $BA$ 具有相同的非零特征值（含重数），证明见\ref{sec:weinstein-aronszajn} Weinstein-Aronszajn 恒等式。
+\end{itemize}
+
+\subsection{代数重数与几何重数}
+
+设 $A \in \mathbb R^{n\times n}$，$\lambda$ 为 $A$ 的特征值。则：
+\begin{itemize}
+    \item $\lambda$ 的\textbf{代数重数}（algebraic multiplicity）定义为 $\lambda$ 作为特征多项式 $p(\lambda) = \det(\lambda I - A)$ 的根的重数，记为 $m_a(\lambda)$。
+    \item $\lambda$ 的\textbf{几何重数}（geometric multiplicity）定义为对应特征空间的维数，即 $\ker(A - \lambda I)$ 的维数，记为 $m_g(\lambda)$。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 对任一特征值 $\lambda$，都有 $1 \le m_g(\lambda) \le m_a(\lambda)$。
+    \item 矩阵 $A$ 可对角化或其特征向量组成一组基的充分必要条件是对每个特征值 $\lambda$，均有 $m_g(\lambda) = m_a(\lambda)$。
+    \item 代数重数反映了特征值在特征多项式中的出现频率，而几何重数反映了对应特征向量的线性无关数量。
+\end{itemize}
+
+\subsection{$AB=BA$}
+
+设 $A, B \in \mathbb R^{n\times n}$，若 $AB = BA$，则称 $A$ 与 $B$ \textbf{可交换}。可交换矩阵具有以下性质：
+\begin{itemize}
+    \item 共同特征向量：若 $A$ 可对角化且 $AB = BA$，则 $A$ 与 $B$ 具有一组共同的特征向量和特征值。
+    \item 多项式闭包：若 $A$ 与 $B$ 可交换，则任意多项式 $p(A, B)$ 与 $q(A, B)$ 也可交换，即 $p(A, B) q(A, B) = q(A, B) p(A, B)$。
+    \item 对称矩阵的可交换性：若 $A$ 与 $B$ 均为对称矩阵且可交换，则它们可以被同一个正交矩阵对角化。
+    \item 迹的可交换性：$\operatorname{tr}(AB) = \operatorname{tr}(BA)$，因此可交换矩阵的迹具有对称性。
+\end{itemize}
+
+\subsection{行列式因子、不变因子和初等因子}
+
+设 $A \in \mathbb R^{m\times n}$，则其\textbf{行列式因子}（determinantal divisors）定义为
+\[    d_k(A)
+    = \gcd\{\det(M) : M \text{ 为 } A \text{ 的 } k \times k \text{ 子矩阵}\},
+\]对于 $k = 1, 2, \ldots, r$，其中 $r = \operatorname{rank}(A)$，$gcd$ 表示最大公约数。
+行列式因子满足 $d_1(A) \mid d_2(A) \mid \cdots \mid d_r(A)$。
+
+设 $s_1(A) = d_1(A)$，$s_k(A) = d_k(A) / d_{k-1}(A)$，则称 $s_k(A)$ 为 $A$ 的\textbf{不变因子}（invariant factors）。不变因子满足 $s_1(A) \mid s_2(A) \mid \cdots \mid s_r(A)$。
+
+进一步，将所有不变因子分解为不可约多项式的幂次乘积，称这些幂次项为 $A$ 的\textbf{初等因子}（elementary divisors）。
+
+\subsection{施密特正交化}
+
+设 $V$ 为内积空间，$\{\bm v_1, \bm v_2, \ldots, \bm v_n\}$ 为 $V$ 中的一组线性无关向量。通过施密特正交化过程，可以构造出一组正交（或正交归一化）的向量 $\{\bm u_1, \bm u_2, \ldots, \bm u_n\}$，其生成的子空间与原向量组相同。 具体步骤如下：
+\begin{enumerate}
+    \item 设 $\bm u_1 = \bm v_1$。
+    \item 对于 $k = 2, 3, \ldots, n$，定义
+    \[
+        \bm u_k
+        = \bm v_k - \sum_{j=1}^{k-1} \frac{\langle \bm v_k, \bm u_j \rangle}{\langle \bm u_j, \bm u_j \rangle} \bm u_j.
+    \]
+\end{enumerate}
+
+\subsection{核/零空间}
+
+设线性映射 $T: V \to W$，其矩阵表示为 $A$。则 $T$ 的\textbf{核}（kernel）或\textbf{零空间}（null space）定义为
+\[    \ker(T)
+    = \{\bm v \in V : T(\bm v) = \bm 0\}
+    = \{\bm v \in V : A \bm v = \bm 0\}.
+\]
+
+性质：
+\begin{itemize}
+    \item $\ker(T)$ 是 $V$ 的子空间。
+    \item 矩阵 $A$ 的零空间$\ker(A)$ 与 $Row(A)^\perp$ 相同。
+    \item $\dim(\ker(T))$ 称为 $T$ 的\text{零化度}（nullity）。
+    \item 秩-零化度定理：$\dim(\operatorname{Im}(T)) + \dim(\ker(T)) = \dim(V)$。
+    \item 若 $A$ 可逆，则 $\ker(T) = \{0\}$。
+\end{itemize}
+
+\section{范数}
+\subsection{向量范数}
+设 $V$ 为数域 $P$ 上的向量空间，映射 $\lVert \cdot \rVert: V \to \mathbb R$ 若满足下列条件，则称其为 $V$ 上的\textbf{范数}：
+\begin{enumerate}
+    \item 正定性：对任意 $\alpha \in V$，有 $\lVert \alpha \rVert \ge 0$，且当且仅当 $\alpha = 0$ 时取等号。
+    \item 齐次性：对任意 $\alpha \in V$ 与 $k \in P$，有 $\lVert k\alpha \rVert = |k| \lVert \alpha \rVert$。
+    \item 三角不等式：对任意 $\alpha, \beta \in V$，有 $\lVert \alpha + \beta \rVert \le \lVert \alpha \rVert + \lVert \beta \rVert$。
+\end{enumerate}
+
+常见向量范数包括：
+\begin{itemize}
+    \item $p$-范数：对 $p \ge 1$，定义
+    \[
+        \lVert \bm x \rVert_p
+        = \Big(\sum_{i=1}^n |x_i|^p\Big)^{1/p}.
+    \]
+    特殊情形包括 $p=1$（曼哈顿范数）、$p=2$（欧几里得范数）、$p=\infty$（最大范数）。
+    \item 最大范数：定义
+    \[
+        \lVert \bm x \rVert_{\max}
+        = \max_{1 \le i \le n} |x_i|.
+    \]
+\end{itemize}
+
+酉矩阵或列正交矩阵不改变向量的2-范数：$\lVert Q\bm x \rVert_2 = \lVert \bm x \rVert_2, \forall Q^T Q = I$。
+
+\subsection{向量内积}
+
+设 $V$ 为数域 $P$ 上的向量空间，定义映射 $\langle \cdot, \cdot \rangle: V \times V \to P$，若对任意 $\alpha, \beta, \gamma \in V$ 与任意 $k \in P$，下列条件都成立，则称 $\langle \cdot, \cdot \rangle$ 为 $V$ 上的\textbf{内积}，$(V, \langle \cdot, \cdot \rangle)$ 为\textbf{内积空间}：
+\begin{enumerate}
+    \item 正定性：$\langle \alpha, \alpha \rangle \ge 0$，且当且仅当 $\alpha = 0$ 时取等号。
+    \item 共轭对称性：$\langle \alpha, \beta \rangle = \overline{\langle \beta, \alpha \rangle}$。
+    \item 线性性：$\langle k\alpha + \beta, \gamma \rangle = k\langle \alpha, \gamma \rangle + \langle \beta, \gamma \rangle$。
+\end{enumerate}
+
+常见性质：
+\begin{itemize}
+    \item \textbf{柯西--施瓦茨不等式}：对任意 $\alpha, \beta \in V$，有
+    \[
+        |\langle \alpha, \beta \rangle|^2
+        \le \langle \alpha, \alpha \rangle \langle \beta, \beta \rangle.
+    \]
+    \item \textbf{三角不等式}：对任意 $\alpha, \beta \in V$，有
+    \[
+        \sqrt{\langle \alpha + \beta, \alpha + \beta \rangle}
+        \le \sqrt{\langle \alpha, \alpha \rangle} + \sqrt{\langle \beta, \beta \rangle}.
+    \]
+    \item \textbf{平行四边形恒等式}：对任意 $\alpha, \beta \in V$，有
+    \[
+        \langle \alpha + \beta, \alpha + \beta \rangle
+        + \langle \alpha - \beta, \alpha - \beta \rangle
+        = 2\langle \alpha, \alpha \rangle + 2\langle \beta, \beta \rangle.
+    \]
+    内积还可以写成范数的形式：
+    \[
+        \langle \alpha, \beta \rangle
+        = \frac{1}{4}\big(\lVert \alpha + \beta \rVert^2
+        - \lVert \alpha - \beta \rVert^2\big).
+    \]相关（不）等式证明见HW2。
+\end{itemize}
+
+\subsection{矩阵范数}
+设 $V$ 为数域 $P$ 上的矩阵空间，映射 $\lVert \cdot \rVert: V \to \mathbb R$ 若满足下列条件，则称其为 $V$ 上的\textbf{矩阵范数}：
+\begin{enumerate}
+    \item 正定性：对任意 $A \in V$，有 $\lVert A \rVert \ge 0$，且当且仅当 $A = 0$ 时取等号。
+    \item 齐次性：对任意 $A \in V$ 与 $k \in P$，有 $\lVert kA \rVert = |k| \lVert A \rVert$。
+    \item 三角不等式：对任意 $A, B \in V$，有 $\lVert A + B \rVert \le \lVert A \rVert + \lVert B \rVert$。
+    \item 一致性：对任意可乘矩阵 $A, B \in V$，有 $\lVert AB \rVert \le \lVert A \rVert \lVert B \rVert$。
+\end{enumerate}
+
+常见矩阵范数包括：
+\begin{itemize}
+    \item $p$-范数：对 $p \ge 1$，定义
+    \[
+        \lVert A \rVert_p
+        = \sup_{\bm x \neq 0} \frac{\lVert A\bm x \rVert_p}{\lVert \bm x \rVert_p}.
+    \]
+    特殊情形包括：$\lVert A \rVert_0=\max_{1 \le j \le n} \lVert a_{n}\rVert_0$（列0范数）、$\lVert A \rVert_1=\max_{1 \le j \le n} \sum_{i=1}^m |a_{ij}|$（列和范数）、
+    $\lVert A \rVert_\infty=\max_{1 \le i \le m} \sum_{j=1}^n |a_{ij}|$（行和范数）、$\lVert A \rVert_2=\sigma_{\max}$（谱范数，$\sigma_{\max}$ 为 $A$ 的最大奇异值）。（HW2）
+    \item Frobenius 范数：定义
+    \[
+        \lVert A \rVert_F
+        = \sqrt{\sum_{i=1}^m \sum_{j=1}^n |a_{ij}|^2}
+        = \sqrt{\operatorname{tr}(A^T A)}
+        = \sqrt{\sum_{i=1}^{\min\{m,n\}} \sigma_i^2}.
+    \]
+    \item 核范数：定义
+    \[
+        \lVert A \rVert_*
+        = \sum_{i=1}^{\min\{m,n\}} \sigma_i,
+    \]其中 $\sigma_i$ 为 $A$ 的奇异值。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 谱半径小于任意矩阵范数，即 $\rho(A) \le \lVert A \rVert$。
+    \item $\lVert A + B \rVert^2 + \lVert A - B \rVert^2 = 2\lVert A \rVert^2 + 2\lVert B \rVert^2$
+    \item $\lVert A + B \rVert \cdot \lVert A - B \rVert \le \lVert A \rVert^2 + \lVert B \rVert^2$
+    \item $\lVert A \rVert_2 = \max_{\lVert x \rVert_2 = 1} \lVert A x \rVert_2$
+\end{itemize}
+
+\subsection{矩阵内积}
+
+表达式：$\langle A, B \rangle = \operatorname{tr}(A^T B) = vec(A)^T vec(B)$，性质：
+
+\begin{itemize}
+    \item 正定性：$\langle A, A \rangle \ge 0$，且当且仅当 $A = 0$ 时取等号。
+    \item 对称性：$\langle A, B \rangle = \langle B, A \rangle$。
+    \item 线性性：$\langle kA + B, C \rangle = k\langle A, C \rangle + \langle B, C \rangle$。
+\end{itemize}
+
+\section{向量空间}
+
+\subsection{定义}
+
+设 $V$ 是数域 $P$（例如 $\mathbb R$ 或 $\mathbb C$）上的非空集合，集合上定义了\textbf{封闭}的\textbf{向量加法} $+: V \times V \to V$ 与\textbf{数乘} $\cdot: P \times V \to V$。若对任意 $\alpha, \beta, \gamma \in V$ 与任意 $k, l \in P$，下列公理都成立，则称 $(V, +, \cdot)$ 为 $P$ 上的\textbf{向量空间}：
+
+\begin{enumerate}
+	\item 交换律：$\alpha + \beta = \beta + \alpha$。
+	\item 结合律：$(\alpha + \beta) + \gamma = \alpha + (\beta + \gamma)$。
+	\item 存在零元 $0 \in V$，使得对一切 $\alpha \in V$ 有 $\alpha + 0 = \alpha$。
+	\item 对每个 $\alpha \in V$，存在逆元 $-\alpha \in V$，使得 $\alpha + (-\alpha) = 0$。
+	\item 数乘单位元：对域中单位元 $1 \in P$，有 $1\alpha = \alpha$。
+	\item 数乘结合律：$(kl)\alpha = k(l\alpha)$。
+	\item 数乘对标量加法的分配律：$(k + l)\alpha = k\alpha + l\alpha$。
+	\item 数乘对向量加法的分配律：$k(\alpha + \beta) = k\alpha + k\beta$。
+\end{enumerate}
+
+\subsection{子空间}
+
+设 $V$ 是数域 $P$ 上的向量空间，$W \subseteq V$。若 $W$ 本身在 $V$ 的加法与数乘下也构成向量空间，则称 $W$ 为 $V$ 的\textbf{子空间}。
+
+定义2种子空间运算：
+\begin{itemize}
+    \item \textbf{和空间}：$U, W$ 为 $V$ 的子空间，则其和空间定义为
+    \[
+        U + W
+        = \{ \bm u + \bm w \mid \bm u \in U,\, \bm w \in W \}.
+    \]
+    \item \textbf{交空间}：$U, W$ 为 $V$ 的子空间，则其交空间定义为
+    \[
+        U \cap W
+        = \{ \bm v \mid \bm v \in U \text{ 且 } \bm v \in W \}.
+    \]
+\end{itemize}
+
+和空间是包含 $U, W$ 的最小子空间，交空间是包含在 $U, W$ 中的最大子空间。且有维度性质：
+\[
+    \dim(U + W) + \dim(U \cap W)
+    = \dim(U) + \dim(W).
+\]
+
+\subsection{两子空间的主角}
+
+设 $V$ 为数域 $P$ 上的向量空间，$U, W \subseteq V$ 为其子空间。则存在一组\textbf{主角}（principal angles）$0 \le \theta_1 \le \theta_2 \le \cdots \le \theta_k \le \frac{\pi}{2}$，其中 $k = \min\{\dim(U), \dim(W)\}$，使得：
+\begin{itemize}
+    \item 对每个 $i = 1, 2, \ldots, k$，存在单位向量 $\bm u_i \in U$ 与 $\bm w_i \in W$，使得
+    \[    \cos(\theta_i)
+        = \langle \bm u_i, \bm w_i \rangle.
+    \]
+    \item 向量组 $\{\bm u_1, \bm u_2, \ldots, \bm u_k\}$ 在 $U$ 中正交归一，向量组 $\{\bm w_1, \bm w_2, \ldots, \bm w_k\}$ 在 $W$ 中正交归一。
+    \item 对任意 $i < j$，有 $\langle \bm u_i, \bm w_j \rangle = 0$。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item $\theta_i = 0$ 当且仅当 $U$ 与 $W$ 在该方向上有非零交集。
+    \item $\theta_i = \frac{\pi}{2}$ 当且仅当 $U$ 与 $W$ 在该方向上正交。
+    \item 主角可以通过奇异值分解计算得到：设 $U, W$ 的列正交基分别为矩阵 $A, B$，$A^HA=B^HB=I$，则 $A^T B$ 的奇异值即为 $\cos(\theta_i)$。可推出$||AA^T - BB^T||_2 = \sin(\theta_{max})$。（HW9）
+\end{itemize}
+
+\section{代数不等式}
+
+\subsection{均值不等式}
+
+设 $a_1, a_2, \ldots, a_n$ 为非负实数，则有以下均值不等式：
+\[    \text{算术平均数} \ge \text{几何平均数} \ge \text{调和平均数}, \]即
+\[    \frac{a_1 + a_2 + \cdots + a_n}{n}
+    \ge \sqrt[n]{a_1 a_2 \cdots a_n}
+    \ge \frac{n}{\frac{1}{a_1} + \frac{1}{a_2} + \cdots + \frac{1}{a_n}}.
+\]
+
+变体：
+\begin{itemize}
+    \item 对任意实数 $a_1, a_2, \ldots, a_n$，有
+    \[        \frac{a_1 + a_2 + \cdots + a_n}{n}
+        \ge \sqrt[n]{|a_1 a_2 \cdots a_n|}.
+    \]
+    \item 对任意非负实数 $a_1, a_2, \ldots, a_n$ 与 $p \ge q > 0$，有
+    \[        \Big(\frac{a_1^p + a_2^p + \cdots + a_n^p}{n}\Big)^{\frac{1}{p}}
+        \ge \Big(\frac{a_1^q + a_2^q + \cdots + a_n^q}{n}\Big)^{\frac{1}{q}}.
+    \]
+\end{itemize}
+
+\subsection{Cauchy-Schwarz不等式}
+
+设 $a_1, a_2, \ldots, a_n$ 与 $b_1, b_2, \ldots, b_n$ 为实数，则有以下\textbf{柯西不等式}：
+\[    (a_1^2 + a_2^2 + \cdots + a_n^2)(b_1^2 + b_2^2 + \cdots + b_n^2)
+    \ge (a_1 b_1 + a_2 b_2 + \cdots + a_n b_n)^2.
+\]
+
+\subsection{Jensen 不等式}
+
+设 $I \subseteq \mathbb R$ 为区间，$f: I \to \mathbb R$ 为\textbf{凸函数}，即对任意 $x, y \in I$ 与 $\theta \in [0, 1]$，有
+\[    f(\theta x + (1 - \theta) y)
+    \le \theta f(x) + (1 - \theta) f(y).
+\]则对任意 $x_1, x_2, \ldots, x_n \in I$ 与非负权重 $\alpha_1, \alpha_2, \ldots, \alpha_n$，满足 $\sum_{i=1}^n \alpha_i = 1$，都有
+\[    f\Big(\sum_{i=1}^n \alpha_i x_i\Big)
+    \le \sum_{i=1}^n \alpha_i f(x_i).
+\]
+
+例如信息论中有：$kx+(1-k)y \le x^k y^{1-k}$，其中 $x, y > 0$，$k \in [0, 1]$。
+
+\section{概率论}
+
+\subsection{期望和方差}
+
+设随机变量 $X$ 的概率密度函数为 $f(x)$，则其\textbf{期望}（数学期望）定义为
+\[    \mathbb{E}[X]
+    = \int_{-\infty}^{\infty} x f(x) \, dx.
+\]
+\textbf{方差}定义为
+\[    \operatorname{Var}(X)
+    = \mathbb{E}[(X - \mathbb{E}[X])^2]
+    = \mathbb{E}[X^2] - (\mathbb{E}[X])^2.
+\]
+
+性质：
+\begin{itemize}
+    \item 线性性质：对任意常数 $a, b$，有 $\mathbb{E}[aX + b] = a\mathbb{E}[X] + b$。
+    \item 方差的缩放性质：对任意常数 $a$，有 $\operatorname{Var}(aX) = a^2 \operatorname{Var}(X)$。
+    \item 独立性：若 $X$ 与 $Y$ 独立，则 $\mathbb{E}[XY] = \mathbb{E}[X] \mathbb{E}[Y]$。
+    \item $D[X] = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$.
+\end{itemize}
+
+\subsection{常见分布}
+
+\begin{itemize}
+    \item \textbf{正态分布}：$X \sim \mathcal{N}(\mu, \sigma^2)$，概率密度函数为
+    \[
+        f(x)
+        = \frac{1}{\sqrt{2\pi\sigma^2}}
+          \exp\Big(-\frac{(x - \mu)^2}{2\sigma^2}\Big).
+    \]
+    期望为 $\mathbb{E}[X] = \mu$，方差为 $\operatorname{Var}(X) = \sigma^2$。
+    \item \textbf{复正态分布}：$X \sim \mathcal{CN}(\mu, \sigma^2)$，概率密度函数为
+    \[        f(x)
+        = \frac{1}{\pi \sigma^2}
+          \exp\Big(-\frac{|x - \mu|^2}{\sigma^2}\Big).
+    \]
+    期望为 $\mathbb{E}[X] = \mu$，方差为 $\operatorname{Var}(X) = \sigma^2$。
+    \item \textbf{均匀分布}：$X \sim U(a, b)$，概率密度函数为
+    \[
+        f(x)
+        = \begin{cases}
+            \frac{1}{b - a}, & a \le x \le b, \\
+            0, & \text{否则}.
+          \end{cases}
+    \]
+    期望为 $\mathbb{E}[X] = \frac{a + b}{2}$，方差为 $\operatorname{Var}(X) = \frac{(b - a)^2}{12}$。
+    \item \textbf{指数分布}：$X \sim \operatorname{Exp}(\lambda)$，概率密度函数为
+    \[
+        f(x)
+        = \begin{cases}
+            \lambda e^{-\lambda x}, & x \ge 0, \\
+            0, & x < 0.
+          \end{cases}
+    \]
+    期望为 $\mathbb{E}[X] = \frac{1}{\lambda}$，方差为 $\operatorname{Var}(X) = \frac{1}{\lambda^2}$。
+    \item \textbf{伯努利分布}：$X \sim \operatorname{Bern}(p)$，概率质量函数为
+    \[        P(X = 1) = p, \quad P(X = 0) = 1 - p.
+    \]
+    期望为 $\mathbb{E}[X] = p$，方差为 $\operatorname{Var}(X) = p(1 - p)$。
+    \item \textbf{二项分布}：$X \sim \operatorname{Bin}(n, p)$，概率质量函数为
+    \[        P(X = k)
+        = \binom{n}{k} p^k (1 - p)^{n - k}, \quad k = 0, 1, \ldots, n.
+    \]
+    期望为 $\mathbb{E}[X] = np$，方差为 $\operatorname{Var}(X) = np(1 - p)$。
+    \item \textbf{泊松分布}：$X \sim \operatorname{Poisson}(\lambda)$，概率质量函数为
+    \[        P(X = k)
+        = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \ldots.
+    \]
+    期望为 $\mathbb{E}[X] = \lambda$，方差为 $\operatorname{Var}(X) = \lambda$。
+    \item \textbf{几何分布}：$X \sim \operatorname{Geom}(p)$，概率质量函数为
+    \[        P(X = k)
+        = (1 - p)^{k - 1} p, \quad k = 1, 2, \ldots.
+    \]
+    期望为 $\mathbb{E}[X] = \frac{1}{p}$，方差为 $\operatorname{Var}(X) = \frac{1 - p}{p^2}$。
+    \item \textbf{卡方分布}：$X \sim \chi^2(k)$，概率密度函数为
+    \[        f(x)
+        = \begin{cases}
+            \frac{1}{2^{k/2} \Gamma(k/2)} x^{k/2 - 1} e^{-x/2}, & x > 0, \\
+            0, & x \le 0.
+          \end{cases}
+    \]
+    期望为 $\mathbb{E}[X] = k$，方差为 $\operatorname{Var}(X) = 2k$。
+    \item \textbf{t 分布}：$X \sim t(\nu)$，概率密度函数为
+    \[        f(x)
+        = \frac{\Gamma\big(\frac{\nu + 1}{2}\big)}{\sqrt{\nu \pi} \Gamma\big(\frac{\nu}{2}\big)}
+          \Big(1 + \frac{x^2}{\nu}\Big)^{-\\frac{\nu + 1}{2}}, \quad x \in \mathbb R.
+    \]
+    期望为 $\mathbb{E}[X] = 0$（当 $\nu > 1$ 时），方差为 $\operatorname{Var}(X) = \frac{\nu}{\nu - 2}$（当 $\nu > 2$ 时）。
+    \item \textbf{F 分布}：$X \sim F(d_1, d_2)$，概率密度函数为
+    \[        f(x)
+        = \frac{\sqrt{\frac{(d_1 x)^{d_1} d_2^{d_2}}{(d_1 x + d_2)^{d_1 + d_2}}}}{x B\big(\frac{d_1}{2}, \frac{d_2}{2}\big)}, \quad x > 0.
+    \]
+    期望为 $\mathbb{E}[X] = \frac{d_2}{d_2 - 2}$（当 $d_2 > 2$ 时），方差为 $\operatorname{Var}(X) = \frac{2 d_2^2 (d_1 + d_2 - 2)}{d_1 (d_2 - 2)^2 (d_2 - 4)}$（当 $d_2 > 4$ 时）。
+\end{itemize}
+
+性质：
+\begin{itemize}
+    \item 正态分布$X \sim \mathcal{N}(\mu, \sigma^2)$的平方的分布与非中心卡方分布相关，其期望为 $\mathbb{E}[X^2] = \mu^2+\sigma^2$，方差为 $\operatorname{Var}(X^2) = 4\mu^2\sigma^2 + 2\sigma^4$。
+    \item 独立正态变量的平方和服从卡方分布：若 $X_i \sim \mathcal{N}(0, 1)$ 独立，则 $\sum_{i=1}^k X_i^2 \sim \chi^2(k)$。
+    \item t 分布可表示为正态分布与卡方分布的比值：若 $Z \sim \mathcal{N}(0, 1)$，$V \sim \chi^2(\nu)$ 独立，则 $T = \frac{Z}{\sqrt{V/\nu}} \sim t(\nu)$。
+    \item F 分布可表示为两个独立卡方分布的比值：若 $U_1 \sim \chi^2(d_1)$，$U_2 \sim \chi^2(d_2)$ 独立，则 $F = \frac{(U_1/d_1)}{(U_2/d_2)} \sim F(d_1, d_2)$。
+\end{itemize}
+
+\end{document}
